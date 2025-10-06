@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
-  <title>FRATELLI Food Truck — Right-Facing (Sign Touching Roof, Final)</title>
-  <desc>Flat red food truck facing right with white FRATELLI sign perfectly touching the roof, narrow and tall proportions, same color scheme.</desc>
+  <title>FRATELLI Food Truck — Right-Facing (Clean Front, Wheels Seated)</title>
+  <desc>Flat red food truck facing right with wheels seated into the body, clean bottom-left outline, sign touching roof, and corrected front.</desc>
 
   <defs>
     <style>
       .ol{stroke:#000;stroke-width:8;stroke-linecap:round;stroke-linejoin:round}
+      .ol2{stroke:#000;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
       .red{fill:#C84343}
       .yellow{fill:#FAD65A}
       .blue{fill:#77C2EC}
@@ -15,30 +16,27 @@
     </style>
   </defs>
 
-  <!-- Truck body (right-facing, taller and narrow) -->
-  <path class="ol red" d="
-      M56 176
-      v-64
-      q0 -8 8 -8
-      h96
-      q6 0 9 5
-      l10 17
-      h10
-      q8 0 10 6
-      v28
-      q0 6 -6 10
-      H64
-      q-8 0 -8 -8
-      z"/>
+  <!-- Wheels first (so body overlaps their top edge) -->
+  <g>
+    <circle class="ol black" cx="92"  cy="188" r="12"/>
+    <circle class="ol black" cx="166" cy="188" r="12"/>
+    <circle class="white" cx="92" cy="188" r="4"/>
+    <circle class="white" cx="166" cy="188" r="4"/>
+  </g>
 
-  <!-- White sign now perfectly touching the top edge of the red body -->
+  <!-- Main body as a rounded rectangle for a clean outline (top at y=96, bottom at y=178) -->
+  <rect class="ol red" x="56" y="96" width="150" height="82" rx="8"/>
+
+  <!-- Removed the previous cab nose extension to fix the front oddity -->
+
+  <!-- Roof sign (white) touching the roof (bottom at y=96) -->
   <rect class="ol white" x="80" y="68" width="96" height="28" rx="6"/>
-  <text x="128" y="88" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#000">FRATELLI</text>
+  <text x="128" y="86" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#000">FRATELLI</text>
 
-  <!-- Service window (slightly taller for taller van body) -->
+  <!-- Service window -->
   <rect class="ol gray" x="86" y="132" width="54" height="28" rx="3"/>
 
-  <!-- Awning (yellow/blue stripes, centered over window) -->
+  <!-- Awning (yellow/blue stripes) -->
   <g>
     <rect class="ol white" x="80" y="116" width="70" height="16" rx="2"/>
     <rect class="ol yellow" x="80" y="116" width="10" height="16"/>
@@ -50,21 +48,9 @@
     <rect class="ol yellow" x="140" y="116" width="10" height="16"/>
   </g>
 
-  <!-- Wheels (closer together for shorter wheelbase) -->
-  <circle class="ol black" cx="92"  cy="188" r="12"/>
-  <circle class="ol black" cx="166" cy="188" r="12"/>
-  <circle class="white" cx="92" cy="188" r="4"/>
-  <circle class="white" cx="166" cy="188" r="4"/>
-
-  <!-- Headlight (right side) -->
-  <circle class="ol yellow" cx="192" cy="156" r="6"/>
+  <!-- Headlight (right) -->
+  <circle class="ol yellow" cx="198" cy="156" r="6"/>
 
   <!-- Cab window (forward and slightly taller) -->
-  <path class="ol blue" d="
-      M146 130
-      h22
-      q6 0 8 5
-      l6 10
-      h-36
-      z"/>
+  <path class="ol blue" d="M146 130 h22 q6 0 8 5 l6 10 h-36 z"/>
 </svg>
