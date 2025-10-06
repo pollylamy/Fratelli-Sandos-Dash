@@ -1,84 +1,62 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title>Hard Taco Shell Icon — Clear Opening, Pizza Crust Style</title>
+  <desc>3/4-tilted taco shell icon with smaller open rim, defined interior, and pizza crust-style blister marks. Transparent background.</desc>
+
   <defs>
-    <!-- Baked dough tones -->
-    <radialGradient id="dough" cx="46%" cy="35%" r="70%">
-      <stop offset="0%" stop-color="#FFE7BF"/>
-      <stop offset="55%" stop-color="#F5D199"/>
-      <stop offset="100%" stop-color="#DCA95F"/>
-    </radialGradient>
-    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#E2B066"/>
-      <stop offset="100%" stop-color="#A56F34"/>
-    </linearGradient>
-    <!-- Interior cavity shade -->
-    <radialGradient id="cavity" cx="60%" cy="65%" r="80%">
-      <stop offset="0%" stop-color="#000" stop-opacity="0.28"/>
-      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
-    </radialGradient>
-    <!-- Gloss highlight -->
-    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.7"/>
-      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
-    </linearGradient>
-    <!-- Toasted speckles -->
-    <linearGradient id="speck" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#A4682E"/>
-      <stop offset="100%" stop-color="#7E5326"/>
-    </linearGradient>
+    <style>
+      .ol{stroke:#8B5A1C;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+      .fold{stroke:#B4772C;stroke-width:5;stroke-linecap:round}
+      .shell{fill:#F4C542}
+      .inner{fill:#F6C95A}
+      .markA{fill:#8A4A1D}
+      .markB{fill:#B4632A}
+      .markC{fill:#6F3A18}
+    </style>
   </defs>
 
-  <!-- Base ellipse (plate perspective) -->
-  <ellipse cx="62" cy="88" rx="42" ry="14" fill="none" stroke="none"/>
+  <!-- subtle perspective tilt -->
+  <g transform="translate(-4,4) skewX(-6)">
 
-  <!-- Bottom crust, foreshortened (side-on) -->
-  <path d="M20,84
-           C26,70 46,60 70,60
-           C86,60 100,64 108,72
-           C106,86 96,94 82,96
-           L40,96
-           C30,96 22,92 20,84 Z"
-        fill="url(#dough)" stroke="#A9763C" stroke-width="2.2"/>
+    <!-- Inner rim (smaller, distinct opening) -->
+    <ellipse cx="208" cy="168" rx="12" ry="5" class="ol inner"/>
 
-  <!-- Upper lid overlapping forward, side-on -->
-  <path d="M18,70
-           C30,54 54,48 78,50
-           C92,52 106,58 112,66
-           C104,72 92,76 78,78
-           C60,80 40,78 26,74
-           C22,73 20,72 18,70 Z"
-        fill="url(#dough)" stroke="#A9763C" stroke-width="2.2"/>
+    <!-- Outer shell body -->
+    <path class="ol shell"
+      d="M36 166
+         Q122 54 206 152
+         Q216 164 222 170
+         Q204 178 184 182
+         Q114 196 60 182
+         Q34 176 36 166 Z"/>
 
-  <!-- Mouth opening dark (visible gap, side-on) -->
-  <path d="M26,74
-           C40,78 60,80 78,78
-           C92,76 104,72 112,66
-           C106,74 92,84 74,86
-           C54,88 36,84 26,80 Z"
-        fill="url(#cavity)" opacity="0.75"/>
+    <!-- Smooth bottom curve -->
+    <path d="M36 166 Q120 184 204 170" class="ol" fill="none"/>
 
-  <!-- Rim accent along the lip -->
-  <path d="M22,71
-           C36,76 58,79 78,77
-           C96,75 108,68 112,66"
-        fill="none" stroke="url(#rim)" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+    <!-- Fold line inside -->
+    <path d="M54 160 Q120 80 184 152" class="fold" fill="none"/>
 
-  <!-- Highlight on the lid, following the sketch angle -->
-  <path d="M34 56 C 48 50, 64 48, 80 50
-           C 70 52, 58 58, 46 66
-           C 44 67, 36 66, 34 60 Z"
-        fill="url(#shine)" opacity="0.55"/>
+    <!-- Slight thickness near rim -->
+    <path d="M168 176 q14 5 32 0" class="fold" fill="none"/>
 
-  <!-- Toasted speckles -->
-  <g fill="url(#speck)" opacity="0.85">
-    <circle cx="44" cy="66" r="1.3"/>
-    <circle cx="56" cy="62" r="1.2"/>
-    <circle cx="72" cy="62" r="1.2"/>
-    <circle cx="86" cy="66" r="1.3"/>
-    <circle cx="50" cy="88" r="1.3"/>
-    <circle cx="66" cy="90" r="1.2"/>
-    <circle cx="80" cy="86" r="1.2"/>
-    <circle cx="36" cy="82" r="1.1"/>
-    <circle cx="96" cy="82" r="1.1"/>
+    <!-- Pizza crust marks -->
+    <g opacity="0.95">
+      <ellipse class="markA" cx="150" cy="136" rx="7" ry="5"/>
+      <ellipse class="markB" cx="170" cy="148" rx="6" ry="4.5"/>
+      <ellipse class="markC" cx="126" cy="122" rx="6" ry="4.5"/>
+      <ellipse class="markB" cx="94"  cy="138" rx="6" ry="4.5"/>
+
+      <!-- medium -->
+      <ellipse class="markA" cx="138" cy="152" rx="5" ry="3.5"/>
+      <ellipse class="markB" cx="114" cy="142" rx="4.5" ry="3.5"/>
+      <ellipse class="markC" cx="82"  cy="152" rx="4.5" ry="3.5"/>
+      <ellipse class="markB" cx="64"  cy="160" rx="4" ry="3"/>
+
+      <!-- small dots -->
+      <circle class="markA" cx="106" cy="160" r="1.8"/>
+      <circle class="markB" cx="126" cy="162" r="1.8"/>
+      <circle class="markC" cx="144" cy="158" r="1.8"/>
+      <circle class="markA" cx="166" cy="160" r="1.8"/>
+      <circle class="markB" cx="182" cy="156" r="1.8"/>
+    </g>
   </g>
 </svg>
