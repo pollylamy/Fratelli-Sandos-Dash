@@ -152,15 +152,24 @@
     ].map(function(r){return r.split('').map(function(c){return +c;});});
     // --- Topping icon images (SVG) ---
     var ICONS = {
-      mushroom: { src: 'assets/mushroom.svg' },
-      cheese:   { src: 'assets/mozzarella.svg' },
-      tomato:   { src: 'assets/tomato_whole.svg' }
+      pepperoni: { src: 'assets/pizza_pocket_side.svg' },
+      mushroom:  { src: 'assets/mushroom.svg' },
+      cheese:    { src: 'assets/mozzarella.svg' },
+      tomato:    { src: 'assets/tomato_whole.svg' }
     };
     Object.keys(ICONS).forEach(function(k){
       var img = new Image();
       img.src = ICONS[k].src;
       ICONS[k].img = img;
     });
+
+    // Per-icon sizes (larger for clarity on phones)
+    var ICON_SIZE = {
+      pepperoni: 40,
+      mushroom:  38,
+      cheese:    38,
+      tomato:    38
+    };
 
 
     // State
@@ -214,7 +223,7 @@
       // Prefer SVG image if available
       var entry = (typeof ICONS!=='undefined') && ICONS[icon];
       if (entry && entry.img && entry.img.complete) {
-        var size = 32; // tweak to 28/30 if you'd like larger icons
+        var size = (typeof ICON_SIZE!=='undefined' && ICON_SIZE[icon]) ? ICON_SIZE[icon] : 38
         ctx.save();
         ctx.translate(cx, cy);
 
