@@ -10,7 +10,7 @@
     .wrap { display:grid; grid-template-rows:auto 1fr auto; min-height:100%; }
     /* Header (logo only), larger logo */
     .site-header { display:flex; align-items:center; justify-content:center; padding:12px 12px; gap:12px; background:#fbad2a; }
-    .site-header #brandLogo { height:64px; width:auto; object-fit:contain; border-radius:10px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+    .site-header #brandLogo { height:84px; width:auto; object-fit:contain; border-radius:12px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,.08); }
     .tools { display:none; }
     .brand, .title, .chip { display:none !important; }
 
@@ -39,32 +39,38 @@
     @media (hover: hover) and (pointer: fine) { .controls { display:none; } }
 
     /* ---------- MOBILE LAYOUT (touch devices) ----------
-       Keep canvas strict 4:3; move HUD + controls below;
+       Keep canvas strict 4:3; move HUD above top-left; controls below;
        ensure everything fits the visible screen by shrinking the canvas
        using a max-height based on the dynamic viewport (100dvh).
     ---------------------------------------------------- */
     @media (hover: none) and (pointer: coarse) {
-      /* Reserve vertical space for HUD + controls below the canvas */
+      /* Space for the HUD above the canvas */
+      .stage { padding-top: 48px; }
+
+      /* Limit canvas height so HUD and controls also fit on one screen */
       .game-shell {
-        /* Limit canvas height so HUD and controls also fit on one screen */
-        max-height: calc(100dvh - 260px); /* header (~76) + footer (~40) + below UI (~140) */
+        max-height: calc(100dvh - 300px); /* header + HUD + controls + footer */
       }
-      /* Place HUD directly below canvas, centered */
+
+      /* Place HUD ABOVE the canvas at top-left (not covering) */
       .hud {
         position:absolute;
-        top:100%; left:50%; right:auto; bottom:auto;
-        transform:translateX(-50%);
-        margin-top:10px;
-        justify-content:center; gap:12px;
+        top: auto; bottom: 100%;
+        left: 0; right: auto;
+        transform: none;
+        margin-bottom: 8px;
+        justify-content: flex-start;
+        gap: 12px;
         pointer-events:auto;
       }
       .hud img#hudLogo { display:none; } /* tidy */
-      /* Place controls further below (still within stage); center them */
+
+      /* Place controls below the canvas, centered */
       .controls {
-        position:absolute;
-        top:calc(100% + 56px); /* under the HUD */
-        left:50%;
-        transform:translateX(-50%);
+        position: absolute;
+        top: calc(100% + 56px);
+        left: 50%;
+        transform: translateX(-50%);
       }
     }
 
