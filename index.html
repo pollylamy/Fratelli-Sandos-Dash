@@ -10,7 +10,7 @@
     .wrap { display:grid; grid-template-rows:auto 1fr auto; min-height:100%; }
     /* Header (logo only), larger logo */
     .site-header { display:flex; align-items:center; justify-content:center; padding:12px 12px; gap:12px; background:#fbad2a; }
-    .site-header #brandLogo { height:84px; width:auto; object-fit:contain; border-radius:12px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+    .site-header #brandLogo { height:64px; width:auto; object-fit:contain; border-radius:10px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,.08); }
     .tools { display:none; }
     .brand, .title, .chip { display:none !important; }
 
@@ -39,38 +39,32 @@
     @media (hover: hover) and (pointer: fine) { .controls { display:none; } }
 
     /* ---------- MOBILE LAYOUT (touch devices) ----------
-       Keep canvas strict 4:3; move HUD above top-left; controls below;
+       Keep canvas strict 4:3; move HUD + controls below;
        ensure everything fits the visible screen by shrinking the canvas
        using a max-height based on the dynamic viewport (100dvh).
     ---------------------------------------------------- */
     @media (hover: none) and (pointer: coarse) {
-      /* Space for the HUD above the canvas */
-      .stage { padding-top: 48px; }
-
-      /* Limit canvas height so HUD and controls also fit on one screen */
+      /* Reserve vertical space for HUD + controls below the canvas */
       .game-shell {
-        max-height: calc(100dvh - 300px); /* header + HUD + controls + footer */
+        /* Limit canvas height so HUD and controls also fit on one screen */
+        max-height: calc(100dvh - 260px); /* header (~76) + footer (~40) + below UI (~140) */
       }
-
-      /* Place HUD ABOVE the canvas at top-left (not covering) */
+      /* Place HUD directly below canvas, centered */
       .hud {
         position:absolute;
-        top: auto; bottom: 100%;
-        left: 0; right: auto;
-        transform: none;
-        margin-bottom: 8px;
-        justify-content: flex-start;
-        gap: 12px;
+        top:100%; left:50%; right:auto; bottom:auto;
+        transform:translateX(-50%);
+        margin-top:10px;
+        justify-content:center; gap:12px;
         pointer-events:auto;
       }
       .hud img#hudLogo { display:none; } /* tidy */
-
-      /* Place controls below the canvas, centered */
+      /* Place controls further below (still within stage); center them */
       .controls {
-        position: absolute;
-        top: calc(100% + 56px);
-        left: 50%;
-        transform: translateX(-50%);
+        position:absolute;
+        top:calc(100% + 56px); /* under the HUD */
+        left:50%;
+        transform:translateX(-50%);
       }
     }
 
@@ -269,120 +263,29 @@
     function showLose(){ overlay.innerHTML=''; var d=document.createElement('div'); d.className='card'; d.innerHTML='<h2>Game Over</h2><p>You were caught!</p><button class="btn" id="retry">Try Again</button>'; overlay.appendChild(d); document.getElementById('retry').onclick=function(){ reset(); start(); }; }
     function playerHit(){ if (gameOver || won) return; lives--; sfx('hit'); if (lives <= 0) { gameOver = true; updateScore(); showLose(); } else { resetPlayer(); updateScore(); } }
 
-    
-// Optional audio samples (low-latency, preferred if present)
-// Add these files to your repo under /assets/
-var SAMPLES = {
-  start:  'assets/lets-have-a-pizza-sando.mp3', // excited Italian male voice
-  collect:'assets/coin.wav',                    // coin pickup
-  hit:    'assets/oh_no.wav',                   // "oh no!" or similar
-  win:    'assets/bravo.wav'                    // "bravo!" or short cheer
-};
+    // SFX
+    var AC=null; function tone(f,d,t,g){ t=t||'sine'; g=g||0.08; try{ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==='suspended' && AC.resume) { AC.resume(); } var o=AC.createOscillator(), ga=AC.createGain(); o.type=t; o.frequency.value=f; ga.gain.value=g; o.connect(ga).connect(AC.destination); o.start(); o.stop(AC.currentTime+d);}catch(_){} }
+    function sfx(kind){ try{ if(kind==='collect'){ tone(660,.06,'square',.06); setTimeout(function(){tone(880,.06,'square',.05);},50);} if(kind==='start'){ tone(330,.08,'triangle',.08); setTimeout(function(){tone(660,.1,'triangle',.08);},100);} if(kind==='win'){ tone(523,.1); setTimeout(function(){tone(659,.12);},120); setTimeout(function(){tone(784,.16,'sine',.1);},260);} if(kind==='hit'){ tone(180,.18,'sawtooth',.08);} }catch(e){} }
 
+    // Bind static controls
+    (function setupControls(){
+      var wrap=document.querySelector('.controls'); if(!wrap) return;
+      var buttons=wrap.querySelectorAll('.btn-ctl');
+      function bind(el){
+        var code=el.getAttribute('data-code'); if(!code) return;
+        var down=function(e){ e.preventDefault(); if(keys.hasOwnProperty(code)) keys[code]=true; if(!started && !won && !gameOver) start(); };
+        var up=function(e){ e.preventDefault(); if(keys.hasOwnProperty(code)) keys[code]=false; };
+        el.addEventListener('mousedown', down);
+        el.addEventListener('mouseup', up);
+        el.addEventListener('mouseleave', up);
+        el.addEventListener('touchstart', down, {passive:false});
+        el.addEventListener('touchend', up, {passive:false});
+        el.addEventListener('touchcancel', up, {passive:false});
+      }
+      Array.prototype.forEach.call(buttons, bind);
+    })();
 
-// --- SFX (samples + synth + TTS fallback) ---
-var AC=null;
-var sampleBuffers = {};  // name -> AudioBuffer
-
-function getAC(){
-  try {
-    if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)();
-    if(AC.state==='suspended' && AC.resume) AC.resume();
-  } catch(_){}
-  return AC;
-}
-
-// Load & decode a sample once, then cache
-function loadSample(name, url){
-  var ctx=getAC(); if(!ctx || !url) return Promise.resolve(null);
-  if(sampleBuffers[name]) return Promise.resolve(sampleBuffers[name]);
-  return fetch(url).then(r=>r.arrayBuffer())
-    .then(ab=>ctx.decodeAudioData(ab))
-    .then(buf => (sampleBuffers[name]=buf))
-    .catch(()=>null);
-}
-
-// Fire & forget play
-function playSample(name, gain){
-  var ctx=getAC(); if(!ctx) return false;
-  var buf=sampleBuffers[name]; if(!buf) return false;
-  var src=ctx.createBufferSource(); src.buffer=buf;
-  var g=ctx.createGain(); g.gain.value=(gain==null?0.9:gain);
-  src.connect(g).connect(ctx.destination); src.start();
-  return true;
-}
-
-// Simple synth helpers (arcade-y)
-function tone(f,d,type,gain){
-  var ctx=getAC(); if(!ctx) return;
-  var o=ctx.createOscillator(), g=ctx.createGain();
-  o.type=type||'square'; o.frequency.value=f;
-  g.gain.value=(gain==null?0.08:gain);
-  g.gain.setValueAtTime(g.gain.value, ctx.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + Math.max(0.03, d*0.9));
-  o.connect(g).connect(ctx.destination);
-  o.start(); o.stop(ctx.currentTime + d);
-}
-
-// Cute arpeggio helper (for start/win)
-function arp(freqs, stepMs){
-  var t=0;
-  freqs.forEach((f)=>{
-    setTimeout(()=>tone(f,0.09,'square',0.12), t);
-    t += stepMs;
-  });
-}
-
-// TTS fallback (tries an Italian voice if available)
-function say(text){
-  try{
-    if(!('speechSynthesis' in window)) return false;
-    var u=new SpeechSynthesisUtterance(text);
-    u.lang='it-IT';
-    var vs=speechSynthesis.getVoices();
-    var v = vs.find(v=>/it|ital/i.test(v.lang||'') && /male|luca|emanuele|paolo/i.test((v.name||''))) ||
-            vs.find(v=>/it|ital/i.test(v.lang||'')) || null;
-    if(v) u.voice=v;
-    u.rate=1.0; u.pitch=1.0; u.volume=1.0;
-    speechSynthesis.speak(u);
-    return true;
-  }catch(_){ return false; }
-}
-
-function sfx(kind){
-  if(kind==='collect'){
-    if(!playSample('collect',0.9)){
-      tone(880, .05,'square',.12); setTimeout(()=>tone(1320,.05,'square',.10), 45);
-    }
-  }
-  else if(kind==='hit'){
-    if(!playSample('hit',0.9)){
-      tone(330,.12,'sawtooth',.10); setTimeout(()=>tone(247,.14,'sawtooth',.10),110);
-    }
-  }
-  else if(kind==='win'){
-    if(!playSample('win',0.9)){
-      arp([523,659,784,988,784,988], 120);
-    }
-  }
-  else if(kind==='start'){
-    var said = playSample('start', 0.95) || say("Let's have a pizza sando!!");
-    arp([330,392,523,659], 90);
-  }
-}
-
-// Preload samples (non-blocking)
-(function preload(){
-  try{
-    Object.keys(SAMPLES||{}).forEach(name=>{
-      var url=SAMPLES[name];
-      if(url) loadSample(name, url);
-    });
-  }catch(_){}
-})();
-
-
-// Bind static controls    // Boot
+    // Boot
     function reset(){ resetPlayer(); placeToppings(18); spawnEnemies(1); started=false; won=false; gameOver=false; lives=LIVES_MAX; updateScore(); draw(); }
     reset(); showStart();
 
