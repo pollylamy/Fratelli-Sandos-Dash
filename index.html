@@ -94,7 +94,7 @@
         <div class="game-shell">
           <canvas id="game" width="900" height="675"></canvas>
           <div class="hud">
-            <div id="score" class="score">Toppings: 0/0 • Lives: 3</div>
+            <div id="score" class="score">Ingredients: 0/0 • Lives: 3</div>
             <img id="hudLogo" style="height:28px;border-radius:6px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.08)"/>
           </div>
           <div id="overlay" class="overlay"></div>
@@ -170,10 +170,10 @@
       cheese:    999,
       tomato:    999
     };
-    // Preload hero van sprite (SVG)
-    var VAN_SPRITE = new Image();
-    VAN_SPRITE.src = 'assets/hero_van.svg';
 
+    // Enemy sprite (evil oven)
+    var OVEN_SPRITE = new Image();
+    OVEN_SPRITE.src = 'assets/evil_oven_baddie.svg';
 
 
     // State
@@ -202,7 +202,7 @@
       for(i=0;i<n;i++){ var s=far[i]||sp[i]; var ce=toCenter(s); enemies.push({r:s.r,c:s.c,x:ce.x,y:ce.y,path:[]}); }
     }
 
-    function updateScore(){ var got=toppings.filter(function(t){return t.collected;}).length; scoreEl.textContent='Toppings: '+got+'/'+toppings.length+' • Lives: '+lives; }
+    function updateScore(){ var got=toppings.filter(function(t){return t.collected;}).length; scoreEl.textContent='Ingredients: '+got+'/'+toppings.length+' • Lives: '+lives; }
 
     function rectVsWall(nx,ny){ var hw=VAN_SIZE.w/2, hh=VAN_SIZE.h/2; var pts=[{x:nx-hw,y:ny-hh},{x:nx+hw,y:ny-hh},{x:nx-hw,y:ny+hh},{x:nx+hw,y:ny+hh}]; for(var i=0;i<pts.length;i++){ var t=tileAt(pts[i].x,pts[i].y); if(!t||t.wall) return true; } return false; }
 
@@ -352,7 +352,7 @@
       if(started && !won && !gameOver) requestAnimationFrame(step);
     }
     function start(){ if(!started){ started=true; overlay.innerHTML=''; startTime=performance.now(); resumeAudioIfNeeded(); sfx('start'); requestAnimationFrame(step); } }
-    function showStart(){ overlay.innerHTML=''; var d=document.createElement('div'); d.className='card'; d.innerHTML='<h2>Pizza Dash</h2><p>Collect all toppings, avoid the rival van. Press <b>Space</b> or tap <b>Start</b>.</p><button class="btn" id="go">Start</button>'; overlay.appendChild(d); var go=document.getElementById('go'); if(go){ go.onclick=start; try{ go.focus({preventScroll:true}); }catch(_){} } }
+    function showStart(){ overlay.innerHTML=''; var d=document.createElement('div'); d.className='card'; d.innerHTML='<h2>Pizza Dash</h2><p>Collect all ingredients, avoid the rival van. Press <b>Space</b> or tap <b>Start</b>.</p><button class="btn" id="go">Start</button>'; overlay.appendChild(d); var go=document.getElementById('go'); if(go){ go.onclick=start; try{ go.focus({preventScroll:true}); }catch(_){} } }
     function showWin(){ overlay.innerHTML=''; var d=document.createElement('div'); d.className='card'; d.innerHTML='<h2>All toppings collected! 🎉</h2><p>Time: '+elapsed.toFixed(2)+'s</p><button class="btn" id="again">Play Again</button>'; overlay.appendChild(d); sfx('win'); document.getElementById('again').onclick=function(){ reset(); start(); }; }
     function showLose(){ overlay.innerHTML=''; var d=document.createElement('div'); d.className='card'; d.innerHTML='<h2>Game Over</h2><p>You were caught!</p><button class="btn" id="retry">Try Again</button>'; overlay.appendChild(d); sfx('lose'); document.getElementById('retry').onclick=function(){ reset(); start(); }; }
     function playerHit(){ if (gameOver || won) return; lives--; sfx('hit'); if (lives <= 0) { gameOver = true; updateScore(); showLose(); } else { resetPlayer(); updateScore(); } }
