@@ -214,14 +214,9 @@
       // Prefer SVG image if available
       var entry = (typeof ICONS!=='undefined') && ICONS[icon];
       if (entry && entry.img && entry.img.complete) {
-        var size = 26; // tweak to 28/30 if you'd like larger icons
+        var size = 32; // tweak to 28/30 if you'd like larger icons
         ctx.save();
         ctx.translate(cx, cy);
-
-        // subtle plate shadow under the icon (keeps original look)
-        ctx.beginPath(); ctx.arc(0,0,12,0,Math.PI*2);
-        ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.fill();
-        ctx.shadowColor='rgba(0,0,0,0.25)'; ctx.shadowBlur=6; ctx.shadowOffsetY=1;
 
         ctx.drawImage(entry.img, -size/2, -size/2, size, size);
 
