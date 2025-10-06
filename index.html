@@ -165,10 +165,10 @@
 
     // Per-icon sizes (larger for clarity on phones)
     var ICON_SIZE = {
-      pepperoni: 40,
-      mushroom:  38,
-      cheese:    38,
-      tomato:    38
+      pepperoni: 999, // will be clamped to TILE-4
+      mushroom:  999,
+      cheese:    999,
+      tomato:    999
     };
 
 
@@ -223,7 +223,7 @@
       // Prefer SVG image if available
       var entry = (typeof ICONS!=='undefined') && ICONS[icon];
       if (entry && entry.img && entry.img.complete) {
-        var size = (typeof ICON_SIZE!=='undefined' && ICON_SIZE[icon]) ? ICON_SIZE[icon] : 38
+        var size = Math.min((typeof ICON_SIZE!=='undefined' && ICON_SIZE[icon] ? ICON_SIZE[icon] : TILE-4), TILE-4)
         ctx.save();
         ctx.translate(cx, cy);
 
