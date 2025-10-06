@@ -171,6 +171,11 @@
       tomato:    999
     };
 
+    // Player sprite (hero van)
+    var HERO_VAN = new Image();
+    HERO_VAN.src = 'assets/hero_van.svg?v=1'; // cache-bust
+
+
     // Enemy sprite (evil oven)
     var OVEN_SPRITE = new Image();
     OVEN_SPRITE.src = ((window && window.__OVEN_SRC__) ? window.__OVEN_SRC__ : 'assets/evil_oven_baddie.svg') + '?v=2';
@@ -279,7 +284,37 @@
       ctx.restore();
     }
     function drawToppings(){ for(var i=0;i<toppings.length;i++){ var it=toppings[i]; if(it.collected) continue; var ce=toCenter(it); drawToppingIcon(it.icon, ce.x, ce.y); } }
-    function drawVan(){ var w=VAN_SIZE.w,h=VAN_SIZE.h; var x=player.x-w/2,y=player.y-h/2; ctx.save(); ctx.fillStyle='#8d2023'; ctx.fillRect(x,y,w,h); ctx.fillStyle='#ee2624'; ctx.fillRect(x,y-4,w*0.7,6); ctx.fillStyle='#1f2937'; ctx.beginPath(); ctx.arc(x+6,y+h,3,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(x+w-6,y+h,3,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+    function drawVan(){
+      var w = VAN_SIZE.w, h = VAN_SIZE.h;
+
+      if (typeof HERO_VAN!=='undefined' && HERO_VAN.complete && HERO_VAN.naturalWidth > 0){
+        // sprite draw (adjust size for the in-game look)
+        var SPRITE_W = 56, SPRITE_H = 36;
+        var x = player.x - SPRITE_W/2;
+        var y = player.y - SPRITE_H/2;
+
+        // soft ground shadow
+        ctx.save();
+        ctx.globalAlpha = 0.18;
+        ctx.beginPath(); ctx.ellipse(player.x, player.y + SPRITE_H/2 - 2, 22, 7, 0, 0, Math.PI*2);
+        ctx.fillStyle = '#000'; ctx.fill();
+        ctx.globalAlpha = 1;
+
+        // draw the hero van
+        ctx.drawImage(HERO_VAN, x, y, SPRITE_W, SPRITE_H);
+        ctx.restore();
+      } else {
+        // original vector van (fallback, unchanged behavior)
+        var x0 = player.x - w/2, y0 = player.y - h/2; ctx.save();
+        ctx.fillStyle='#8d2023'; ctx.fillRect(x0,y0,w,h);
+        ctx.fillStyle='#ee2624'; ctx.fillRect(x0,y0-4,w*0.7,6);
+        ctx.fillStyle='#1f2937';
+        ctx.beginPath(); ctx.arc(x0+6,y0+h,3,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x0+w-6,y0+h,3,0,Math.PI*2); ctx.fill();
+        ctx.restore();
+      }
+    }
+
     function drawEnemies(){
       // Tuned size for the oven SVG
       var SPRITE_W = 58, SPRITE_H = 40;
