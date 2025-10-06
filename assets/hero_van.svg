@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
-  <title>FRATELLI Food Truck — Right-Facing (Clean Front, Wheels Seated)</title>
-  <desc>Flat red food truck facing right with wheels seated into the body, clean bottom-left outline, sign touching roof, and corrected front.</desc>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="256" height="170"
+     viewBox="48 60 166 149"
+     preserveAspectRatio="xMidYMid meet"
+     role="img" aria-labelledby="title desc">
+  <title>FRATELLI Food Truck — 256×170 (Tiny Border)</title>
+  <desc>Flat red food truck facing right sized to 256×170 with a minimal border; all details intact, sign touching roof.</desc>
 
   <defs>
     <style>
@@ -16,7 +20,7 @@
     </style>
   </defs>
 
-  <!-- Wheels first (so body overlaps their top edge) -->
+  <!-- Wheels -->
   <g>
     <circle class="ol black" cx="92"  cy="188" r="12"/>
     <circle class="ol black" cx="166" cy="188" r="12"/>
@@ -24,19 +28,15 @@
     <circle class="white" cx="166" cy="188" r="4"/>
   </g>
 
-  <!-- Main body as a rounded rectangle for a clean outline (top at y=96, bottom at y=178) -->
+  <!-- Body -->
   <rect class="ol red" x="56" y="96" width="150" height="82" rx="8"/>
 
-  <!-- Removed the previous cab nose extension to fix the front oddity -->
-
-  <!-- Roof sign (white) touching the roof (bottom at y=96) -->
+  <!-- Sign -->
   <rect class="ol white" x="80" y="68" width="96" height="28" rx="6"/>
   <text x="128" y="86" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#000">FRATELLI</text>
 
-  <!-- Service window -->
+  <!-- Window & Awning -->
   <rect class="ol gray" x="86" y="132" width="54" height="28" rx="3"/>
-
-  <!-- Awning (yellow/blue stripes) -->
   <g>
     <rect class="ol white" x="80" y="116" width="70" height="16" rx="2"/>
     <rect class="ol yellow" x="80" y="116" width="10" height="16"/>
@@ -48,9 +48,9 @@
     <rect class="ol yellow" x="140" y="116" width="10" height="16"/>
   </g>
 
-  <!-- Headlight (right) -->
+  <!-- Headlight -->
   <circle class="ol yellow" cx="198" cy="156" r="6"/>
 
-  <!-- Cab window (forward and slightly taller) -->
+  <!-- Cab window -->
   <path class="ol blue" d="M146 130 h22 q6 0 8 5 l6 10 h-36 z"/>
 </svg>
