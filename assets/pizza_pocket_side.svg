@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Baked dough tones -->
+    <radialGradient id="dough" cx="46%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#FFE7BF"/>
+      <stop offset="55%" stop-color="#F5D199"/>
+      <stop offset="100%" stop-color="#DCA95F"/>
+    </radialGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E2B066"/>
+      <stop offset="100%" stop-color="#A56F34"/>
+    </linearGradient>
+    <!-- Interior cavity shade -->
+    <radialGradient id="cavity" cx="60%" cy="65%" r="80%">
+      <stop offset="0%" stop-color="#000" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Gloss highlight -->
+    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <!-- Toasted speckles -->
+    <linearGradient id="speck" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#A4682E"/>
+      <stop offset="100%" stop-color="#7E5326"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Base ellipse (plate perspective) -->
+  <ellipse cx="62" cy="88" rx="42" ry="14" fill="none" stroke="none"/>
+
+  <!-- Bottom crust, foreshortened (side-on) -->
+  <path d="M20,84
+           C26,70 46,60 70,60
+           C86,60 100,64 108,72
+           C106,86 96,94 82,96
+           L40,96
+           C30,96 22,92 20,84 Z"
+        fill="url(#dough)" stroke="#A9763C" stroke-width="2.2"/>
+
+  <!-- Upper lid overlapping forward, side-on -->
+  <path d="M18,70
+           C30,54 54,48 78,50
+           C92,52 106,58 112,66
+           C104,72 92,76 78,78
+           C60,80 40,78 26,74
+           C22,73 20,72 18,70 Z"
+        fill="url(#dough)" stroke="#A9763C" stroke-width="2.2"/>
+
+  <!-- Mouth opening dark (visible gap, side-on) -->
+  <path d="M26,74
+           C40,78 60,80 78,78
+           C92,76 104,72 112,66
+           C106,74 92,84 74,86
+           C54,88 36,84 26,80 Z"
+        fill="url(#cavity)" opacity="0.75"/>
+
+  <!-- Rim accent along the lip -->
+  <path d="M22,71
+           C36,76 58,79 78,77
+           C96,75 108,68 112,66"
+        fill="none" stroke="url(#rim)" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+
+  <!-- Highlight on the lid, following the sketch angle -->
+  <path d="M34 56 C 48 50, 64 48, 80 50
+           C 70 52, 58 58, 46 66
+           C 44 67, 36 66, 34 60 Z"
+        fill="url(#shine)" opacity="0.55"/>
+
+  <!-- Toasted speckles -->
+  <g fill="url(#speck)" opacity="0.85">
+    <circle cx="44" cy="66" r="1.3"/>
+    <circle cx="56" cy="62" r="1.2"/>
+    <circle cx="72" cy="62" r="1.2"/>
+    <circle cx="86" cy="66" r="1.3"/>
+    <circle cx="50" cy="88" r="1.3"/>
+    <circle cx="66" cy="90" r="1.2"/>
+    <circle cx="80" cy="86" r="1.2"/>
+    <circle cx="36" cy="82" r="1.1"/>
+    <circle cx="96" cy="82" r="1.1"/>
+  </g>
+</svg>
