@@ -115,6 +115,27 @@
     document.getElementById('year').textContent=(new Date()).getFullYear();
     function setLogos(src){ if(!src) return; brandLogo.src=src; hudLogo.src=src; }
 
+    
+// --- Default logo + URL parameter support ---
+(function(){
+  try {
+    // Default to local asset
+    setLogos('assets/logo.png');
+    var el = document.getElementById('logoUrl');
+    if (el) el.value = 'assets/logo.png';
+
+    // Allow override via ?logo=URL
+    var p = new URLSearchParams(location.search);
+    var logo = p.get('logo');
+    if (logo) {
+      setLogos(logo);
+      if (el) el.value = logo;
+    }
+  } catch(_) {}
+})();
+
+
+
     if(!ctx){
       if(overlay){
         overlay.innerHTML='';
