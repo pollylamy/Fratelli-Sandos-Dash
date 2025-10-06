@@ -281,52 +281,6 @@ var SAMPLES = {
 
 
 // --- SFX (samples + synth + TTS fallback) ---
-// --- SFX (samples + synth + TTS fallback) ---
-
-// Voice selection helpers for TTS (prefer enthusiastic Italian MALE voice)
-var __voicesReady = false;
-function __refreshVoicesFlag(){ __voicesReady = true; }
-try { window.speechSynthesis && speechSynthesis.addEventListener('voiceschanged', __refreshVoicesFlag); } catch(_){}
-
-function pickItalianMaleVoice(){
-  try{
-    if(!('speechSynthesis' in window)) return null;
-    var vs = speechSynthesis.getVoices() || [];
-    // Strong male name/name-hints commonly found on Apple/Windows
-    var maleNameHints = /\b(luca|paolo|vittorio|giorgio|emanuele|riccardo|andrea|salvatore|marco)\b/i;
-    // Pass 1: exact Italian + male-ish name
-    var v1 = vs.find(v => /it/i.test(v.lang||'') && maleNameHints.test(v.name||''));
-    if(v1) return v1;
-    // Pass 2: Italian-localized voices that contain "male" in name/voiceURI (rare)
-    var v2 = vs.find(v => /it/i.test(v.lang||'') && /male/i.test((v.name||'') + ' ' + (v.voiceURI||'')));
-    if(v2) return v2;
-    // Pass 3: any Italian voice
-    var v3 = vs.find(v => /it/i.test(v.lang||''));
-    if(v3) return v3;
-    // Pass 4: any obvious male Western European voice (fallback)
-    var v4 = vs.find(v => /(male|fred|daniel|diego|jorge|luca)/i.test((v.name||'') + ' ' + (v.voiceURI||'')));
-    return v4 || null;
-  }catch(_){ return null; }
-}
-
-// Ensure voices are loaded before speaking
-function ensureVoicesReady(cb){
-  try{
-    if(!('speechSynthesis' in window)) { cb(); return; }
-    var tries = 0;
-    function check(){
-      var vs = speechSynthesis.getVoices() || [];
-      if(vs.length || __voicesReady || tries > 10){
-        cb();
-      } else {
-        tries++;
-        setTimeout(check, 120);
-      }
-    }
-    check();
-  }catch(_){ cb(); }
-}
-
 var AC=null;
 var sampleBuffers = {};  // name -> AudioBuffer
 
@@ -383,12 +337,13 @@ function arp(freqs, stepMs){
 function say(text){
   try{
     if(!('speechSynthesis' in window)) return false;
-    var u = new SpeechSynthesisUtterance(text);
-    u.lang = 'it-IT';
-    var v = pickItalianMaleVoice();
-    if(v) u.voice = v;
-    // Enthusiastic male vibe: slightly lower pitch, normal rate, full volume
-    u.rate = 1.0; u.pitch = 0.95; u.volume = 1.0;
+    var u=new SpeechSynthesisUtterance(text);
+    u.lang='it-IT';
+    var vs=speechSynthesis.getVoices();
+    var v = vs.find(v=>/it|ital/i.test(v.lang||'') && /male|luca|emanuele|paolo/i.test((v.name||''))) ||
+            vs.find(v=>/it|ital/i.test(v.lang||'')) || null;
+    if(v) u.voice=v;
+    u.rate=1.0; u.pitch=1.0; u.volume=1.0;
     speechSynthesis.speak(u);
     return true;
   }catch(_){ return false; }
@@ -411,13 +366,7 @@ function sfx(kind){
     }
   }
   else if(kind==='start'){
-    var playedSample = playSample('start', 0.95);
-    ensureVoicesReady(function(){
-      if(!playedSample){
-        var said = say("Let's have a pizza sando!!");
-        // if TTS fails silently, it's fine—the arp still plays
-      }
-    });
+    var said = playSample('start', 0.95) || say("Let's have a pizza sando!!");
     arp([330,392,523,659], 90);
   }
 }
