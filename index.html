@@ -173,7 +173,8 @@
 
     // Enemy sprite (evil oven)
     var OVEN_SPRITE = new Image();
-    OVEN_SPRITE.src = 'assets/evil_oven_baddie.svg';
+    OVEN_SPRITE.src = ((window && window.__OVEN_SRC__) ? window.__OVEN_SRC__ : 'assets/evil_oven_baddie.svg') + '?v=2';
+    OVEN_SPRITE.onerror = function(){ try{ console.warn('Oven sprite failed to load:', OVEN_SPRITE.src); }catch(_){} };
 
 
     // State
