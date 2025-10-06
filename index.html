@@ -42,6 +42,7 @@
     @media (hover: none) and (pointer: coarse) {
       .stage { padding-top: 48px; }
       .game-shell { max-height: calc(100dvh - 300px); } /* header + HUD + controls + footer */
+
       /* HUD above the maze at top-left */
       .hud {
         position:absolute;
@@ -54,13 +55,25 @@
         pointer-events:auto;
       }
       .hud img#hudLogo { display:none; }
-      /* Controls below the maze, centered */
+
+      /* Controls below the maze, centered as a D-Pad (3x3 grid with only 4 used) */
       .controls {
         position: absolute;
         top: calc(100% + 56px);
         left: 50%;
         transform: translateX(-50%);
+        display: grid;
+        grid-template-columns: 60px 60px 60px;
+        grid-template-rows: 60px 60px 60px;
+        gap: 10px;
       }
+      .controls .btn-ctl { width:60px; height:60px; font-size:18px; }
+
+      /* Place buttons in D‑pad positions */
+      .controls .btn-ctl[data-code="ArrowUp"]    { grid-column: 2; grid-row: 1; }
+      .controls .btn-ctl[data-code="ArrowLeft"]  { grid-column: 1; grid-row: 2; }
+      .controls .btn-ctl[data-code="ArrowRight"] { grid-column: 3; grid-row: 2; }
+      .controls .btn-ctl[data-code="ArrowDown"]  { grid-column: 2; grid-row: 3; }
     }
 
   </style>
@@ -254,9 +267,17 @@
     }
 
     // Loop & UI
+    function getKeyStates(){
+      return {
+        up: keys.ArrowUp||keys.KeyW,
+        down: keys.ArrowDown||keys.KeyS,
+        left: keys.ArrowLeft||keys.KeyA,
+        right: keys.ArrowRight||keys.KeyD
+      };
+    }
     function step(){
-      var up=keys.ArrowUp||keys.KeyW, down=keys.KeyS||keys.ArrowDown, left=keys.KeyA||keys.ArrowLeft, right=keys.KeyD||keys.ArrowRight;
-      var vx=0,vy=0; if(up)vy-=SPEED; if(down)vy+=SPEED; if(left)vx-=SPEED; if(right)vx+=SPEED; if(vx&&vy){ vx*=0.7071; vy*=0.7071; }
+      var k = getKeyStates();
+      var vx=0,vy=0; if(k.up)vy-=SPEED; if(k.down)vy+=SPEED; if(k.left)vx-=SPEED; if(k.right)vx+=SPEED; if(vx&&vy){ vx*=0.7071; vy*=0.7071; }
       var nx=clamp(player.x+vx, VAN_SIZE.w/2, COLS*TILE - VAN_SIZE.w/2); if(!rectVsWall(nx, player.y)) player.x=nx;
       var ny=clamp(player.y+vy, VAN_SIZE.h/2, ROWS*TILE - VAN_SIZE.h/2); if(!rectVsWall(player.x, ny)) player.y=ny;
       collectIfNear(); updateEnemies(); draw();
@@ -286,7 +307,6 @@
         var o=ac.createOscillator(), g=ac.createGain();
         o.type=type||'square'; o.frequency.value=freq;
         g.gain.value = (gain==null?0.12:gain);
-        // brief attack + decay envelope for juicy bleeps
         var now = ac.currentTime;
         g.gain.setValueAtTime(0.0001, now);
         g.gain.exponentialRampToValueAtTime(Math.max(0.09, g.gain.value), now + 0.01);
@@ -306,24 +326,19 @@
     }
     function sfx(kind){
       if(kind==='start'){
-        // bright quick start: up arpeggio C E G C'
         resumeAudioIfNeeded();
         arp([523,659,784,1046], 90, 'square', 0.12);
       } else if(kind==='collect'){
-        // tiny coin triplet
         beep(988, .07, 'square', .12);
         setTimeout(function(){ beep(1318, .07, 'square', .11); }, 55);
         setTimeout(function(){ beep(1760, .08, 'square', .10); }, 110);
       } else if(kind==='hit'){
-        // descending “uh-oh” dip
         beep(392, .12, 'sawtooth', .11);
         setTimeout(function(){ beep(261.6, .14, 'sawtooth', .11); }, 110);
       } else if(kind==='win'){
-        // short victory: arpeggio + finishing chord
         arp([523,659,784,988,1174], 100, 'square', .12);
         setTimeout(function(){ chord([784,988,1174], .22, 'triangle', .10); }, 520);
       } else if(kind==='lose'){
-        // sad descending triad
         beep(392, .18, 'triangle', .10);
         setTimeout(function(){ beep(329.6, .20, 'triangle', .10); }, 160);
         setTimeout(function(){ beep(246.9, .24, 'triangle', .10); }, 340);
