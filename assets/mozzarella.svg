@@ -1,49 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <!-- Soft milky gradient for mozzarella -->
     <radialGradient id="mozGrad" cx="45%" cy="40%" r="70%">
       <stop offset="0%"  stop-color="#FFFFFF"/>
       <stop offset="55%" stop-color="#F6F6F2"/>
       <stop offset="100%" stop-color="#E9E9E3"/>
     </radialGradient>
-    <!-- Shadow -->
     <filter id="softDrop" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.20"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.18"/>
     </filter>
-    <!-- Subtle shine -->
     <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
       <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <!-- Basil leaf gradient (accent) -->
     <linearGradient id="leafGrad" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#5CC16A"/>
       <stop offset="100%" stop-color="#2F8A3E"/>
     </linearGradient>
   </defs>
 
-  <!-- Ground shadow -->
-  <ellipse cx="64" cy="102" rx="30" ry="12" fill="#000" opacity="0.12"/>
-
-  <!-- Mozzarella main form (two overlapping ovals for 'torn' look) -->
   <g filter="url(#softDrop)">
     <ellipse cx="66" cy="66" rx="32" ry="28" fill="url(#mozGrad)" stroke="#BEBEB6" stroke-width="2"/>
     <ellipse cx="50" cy="72" rx="18" ry="14" fill="url(#mozGrad)" stroke="#C7C7BE" stroke-width="1.8"/>
-    <!-- Subtle tear lines -->
     <path d="M44 72 C48 70, 52 70, 56 72" fill="none" stroke="#D7D7D1" stroke-width="1.2" opacity="0.8"/>
     <path d="M58 64 C62 62, 66 62, 70 64" fill="none" stroke="#DCDCD6" stroke-width="1.2" opacity="0.8"/>
   </g>
 
-  <!-- Edge accents -->
   <path d="M36 74 C42 80, 52 84, 64 84" fill="none" stroke="#D0D0C9" stroke-width="1.2" opacity="0.7"/>
   <path d="M76 52 C84 54, 90 60, 92 68" fill="none" stroke="#D0D0C9" stroke-width="1.2" opacity="0.7"/>
 
-  <!-- Soft specular highlight -->
   <path d="M46 50 C54 44, 64 42, 74 46 C66 48, 58 52, 52 56 C50 57, 44 56, 46 50 Z"
         fill="url(#shine)"/>
 
-  <!-- Basil leaf accent (optional brand color accent) -->
   <g transform="translate(88,78) rotate(-20)">
     <path d="M0 0 C 10 -2, 18 -2, 24 0 C 18 8, 8 10, 0 0 Z" fill="url(#leafGrad)" stroke="#1F6B32" stroke-width="1.5"/>
     <path d="M2 2 C 8 2, 14 2, 20 2" stroke="#2E8B57" stroke-width="1.2" opacity="0.8" fill="none"/>
