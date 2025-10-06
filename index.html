@@ -10,7 +10,7 @@
     .wrap { display:grid; grid-template-rows:auto 1fr auto; min-height:100%; }
     /* Header (logo only), larger logo */
     .site-header { display:flex; align-items:center; justify-content:center; padding:12px 12px; gap:12px; background:#fbad2a; }
-    .site-header #brandLogo { height:64px; width:auto; object-fit:contain; border-radius:10px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+    .site-header #brandLogo { height:84px; width:auto; object-fit:contain; border-radius:12px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,.08); }
     .tools { display:none; }
     .brand, .title, .chip { display:none !important; }
 
@@ -38,33 +38,28 @@
     /* Hide on-screen controls on desktop; keep on touch devices */
     @media (hover: hover) and (pointer: fine) { .controls { display:none; } }
 
-    /* ---------- MOBILE LAYOUT (touch devices) ----------
-       Keep canvas strict 4:3; move HUD + controls below;
-       ensure everything fits the visible screen by shrinking the canvas
-       using a max-height based on the dynamic viewport (100dvh).
-    ---------------------------------------------------- */
+    /* ---------- MOBILE LAYOUT (touch devices) ---------- */
     @media (hover: none) and (pointer: coarse) {
-      /* Reserve vertical space for HUD + controls below the canvas */
-      .game-shell {
-        /* Limit canvas height so HUD and controls also fit on one screen */
-        max-height: calc(100dvh - 260px); /* header (~76) + footer (~40) + below UI (~140) */
-      }
-      /* Place HUD directly below canvas, centered */
+      .stage { padding-top: 48px; }
+      .game-shell { max-height: calc(100dvh - 300px); } /* header + HUD + controls + footer */
+      /* HUD above the maze at top-left */
       .hud {
         position:absolute;
-        top:100%; left:50%; right:auto; bottom:auto;
-        transform:translateX(-50%);
-        margin-top:10px;
-        justify-content:center; gap:12px;
+        top: auto; bottom: 100%;
+        left: 0; right: auto;
+        transform: none;
+        margin-bottom: 8px;
+        justify-content: flex-start;
+        gap: 12px;
         pointer-events:auto;
       }
-      .hud img#hudLogo { display:none; } /* tidy */
-      /* Place controls further below (still within stage); center them */
+      .hud img#hudLogo { display:none; }
+      /* Controls below the maze, centered */
       .controls {
-        position:absolute;
-        top:calc(100% + 56px); /* under the HUD */
-        left:50%;
-        transform:translateX(-50%);
+        position: absolute;
+        top: calc(100% + 56px);
+        left: 50%;
+        transform: translateX(-50%);
       }
     }
 
@@ -84,7 +79,7 @@
     <main>
       <div class="stage">
         <div class="game-shell">
-          <canvas id="game" width="900" height="675"></canvas>
+          <canvas id="game" width="900" height="675"></></canvas>
           <div class="hud">
             <div id="score" class="score">Toppings: 0/0 • Lives: 3</div>
             <img id="hudLogo" style="height:28px;border-radius:6px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.08)"/>
@@ -159,8 +154,18 @@
 
     function resetPlayer(){ var ce=toCenter(START_TILE); player.x=ce.x; player.y=ce.y; }
     function placeToppings(n){ if(n===undefined) n=18; toppings=[]; var empties=[],r,c; for(r=1;r<ROWS-1;r++){ for(c=1;c<COLS-1;c++){ if(MAZE[r][c]===0) empties.push({r:r,c:c}); } } for(var i=empties.length-1;i>0;i--){ var j=(Math.random()*(i+1))|0; var t=empties[i]; empties[i]=empties[j]; empties[j]=t; } for(i=0;i<n;i++){ var p=empties[i]; var tt=TOPPINGS[(Math.random()*TOPPINGS.length)|0]; toppings.push({r:p.r,c:p.c,icon:tt.icon,collected:false}); } }
-    function spawnEnemies(n){ if(n===undefined) n=1; enemies=[]; var sp=[{r:13,c:18},{r:8,c:10},{r:1,c:18},{r:12,c:2}]; for(var i=sp.length-1;i>0;i--){ var j=(Math.random()*(i+1))|0; var t=sp[i]; sp[i]=sp[j]; sp[j]=t; } var minManhattan=16; var far=sp.filter(function(s){ return Math.abs(s.r-START_TILE.r)+Math.abs(s.c-START_TILE.c) >= minManhattan; }); if(far.length < n){ sp.sort(function(a,b){ var da=Math.abs(a.r-START_TILE.r)+Math.abs(a.c-START_TILE.c); var db=Math.abs(b.r-START_TILE.r)+Math.abs(b.c-START_TILE.c); return db-da; }); far = sp; } for(i=0;i<n;i++){ var s=far[i]||sp[i]; var ce=toCenter(s); enemies.push({r:s.r,c:s.c,x:ce.x,y:ce.y,path:[]}); } }
+
+    function spawnEnemies(n){ if(n===undefined) n=1; enemies=[];
+      var sp=[{r:13,c:18},{r:8,c:10},{r:1,c:18},{r:12,c:2}];
+      for(var i=sp.length-1;i>0;i--){ var j=(Math.random()*(i+1))|0; var t=sp[i]; sp[i]=sp[j]; sp[j]=t; }
+      var minManhattan=16;
+      var far=sp.filter(function(s){ return Math.abs(s.r-START_TILE.r)+Math.abs(s.c-START_TILE.c) >= minManhattan; });
+      if(far.length < n){ sp.sort(function(a,b){ var da=Math.abs(a.r-START_TILE.r)+Math.abs(a.c-START_TILE.c); var db=Math.abs(b.r-START_TILE.r)+Math.abs(b.c-START_TILE.c); return db-da; }); far = sp; }
+      for(i=0;i<n;i++){ var s=far[i]||sp[i]; var ce=toCenter(s); enemies.push({r:s.r,c:s.c,x:ce.x,y:ce.y,path:[]}); }
+    }
+
     function updateScore(){ var got=toppings.filter(function(t){return t.collected;}).length; scoreEl.textContent='Toppings: '+got+'/'+toppings.length+' • Lives: '+lives; }
+
     function rectVsWall(nx,ny){ var hw=VAN_SIZE.w/2, hh=VAN_SIZE.h/2; var pts=[{x:nx-hw,y:ny-hh},{x:nx+hw,y:ny-hh},{x:nx-hw,y:ny+hh},{x:nx+hw,y:ny+hh}]; for(var i=0;i<pts.length;i++){ var t=tileAt(pts[i].x,pts[i].y); if(!t||t.wall) return true; } return false; }
 
     // Rendering
@@ -204,7 +209,7 @@
         if(dx<hw+6 && dy<hh+6){ it.collected=true; sfx('collect'); updateScore(); }
       }
       var all=toppings.every(function(t){return t.collected;});
-      if(all && !won){ won=true; elapsed=(performance.now()-startTime)/1000; showWin(); sfx('win'); }
+      if(all && !won){ won=true; elapsed=(performance.now()-startTime)/1000; showWin(); /* sfx('win'); */ }
     }
 
     // Pathfinding
@@ -257,15 +262,34 @@
       collectIfNear(); updateEnemies(); draw();
       if(started && !won && !gameOver) requestAnimationFrame(step);
     }
-    function start(){ if(!started){ started=true; overlay.innerHTML=''; startTime=performance.now(); requestAnimationFrame(step); sfx('start'); } }
+    function start(){ if(!started){ started=true; overlay.innerHTML=''; startTime=performance.now(); try{ if(window.AC && AC.state==='suspended' && AC.resume) AC.resume(); }catch(_){} requestAnimationFrame(step); /* sfx('start'); */ } }
     function showStart(){ overlay.innerHTML=''; var d=document.createElement('div'); d.className='card'; d.innerHTML='<h2>Pizza Dash</h2><p>Collect all toppings, avoid the rival van. Press <b>Space</b> or tap <b>Start</b>.</p><button class="btn" id="go">Start</button>'; overlay.appendChild(d); var go=document.getElementById('go'); if(go){ go.onclick=start; try{ go.focus({preventScroll:true}); }catch(_){} } }
     function showWin(){ overlay.innerHTML=''; var d=document.createElement('div'); d.className='card'; d.innerHTML='<h2>All toppings collected! 🎉</h2><p>Time: '+elapsed.toFixed(2)+'s</p><button class="btn" id="again">Play Again</button>'; overlay.appendChild(d); document.getElementById('again').onclick=function(){ reset(); start(); }; }
     function showLose(){ overlay.innerHTML=''; var d=document.createElement('div'); d.className='card'; d.innerHTML='<h2>Game Over</h2><p>You were caught!</p><button class="btn" id="retry">Try Again</button>'; overlay.appendChild(d); document.getElementById('retry').onclick=function(){ reset(); start(); }; }
-    function playerHit(){ if (gameOver || won) return; lives--; sfx('hit'); if (lives <= 0) { gameOver = true; updateScore(); showLose(); } else { resetPlayer(); updateScore(); } }
+    function playerHit(){ if (gameOver || won) return; lives--; /* sfx('hit'); */ if (lives <= 0) { gameOver = true; updateScore(); showLose(); } else { resetPlayer(); updateScore(); } }
 
-    // SFX
-    var AC=null; function tone(f,d,t,g){ t=t||'sine'; g=g||0.08; try{ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==='suspended' && AC.resume) { AC.resume(); } var o=AC.createOscillator(), ga=AC.createGain(); o.type=t; o.frequency.value=f; ga.gain.value=g; o.connect(ga).connect(AC.destination); o.start(); o.stop(AC.currentTime+d);}catch(_){} }
-    function sfx(kind){ try{ if(kind==='collect'){ tone(660,.06,'square',.06); setTimeout(function(){tone(880,.06,'square',.05);},50);} if(kind==='start'){ tone(330,.08,'triangle',.08); setTimeout(function(){tone(660,.1,'triangle',.08);},100);} if(kind==='win'){ tone(523,.1); setTimeout(function(){tone(659,.12);},120); setTimeout(function(){tone(784,.16,'sine',.1);},260);} if(kind==='hit'){ tone(180,.18,'sawtooth',.08);} }catch(e){} }
+    // --- Minimal SFX: only 'collect' uses audio; other events silent ---
+    var AC=null;
+    function tone(f,d,type,gain){
+      try{
+        if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)();
+        if(AC.state==='suspended' && AC.resume) { /* resume only on gesture events */ }
+        var o=AC.createOscillator(), g=AC.createGain();
+        o.type=type||'square'; o.frequency.value=f;
+        g.gain.value=(gain==null?0.10:gain);
+        // short decay envelope
+        g.gain.setValueAtTime(g.gain.value, AC.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + Math.max(0.03, d*0.9));
+        o.connect(g).connect(AC.destination); o.start(); o.stop(AC.currentTime + d);
+      }catch(_){}
+    }
+    function sfx(kind){
+      if(kind==='collect'){
+        tone(988, .055, 'square', .12);
+        setTimeout(function(){ tone(1318, .055, 'square', .11); }, 48);
+        setTimeout(function(){ tone(1760, .065, 'square', .10); }, 96);
+      }
+    }
 
     // Bind static controls
     (function setupControls(){
