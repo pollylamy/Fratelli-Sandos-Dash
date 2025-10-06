@@ -150,6 +150,18 @@
     var MAZE=[
       '11111111111111111111','10000000001000000001','10111101101011110101','10100001001010000101','10101111011010110101','10101000000010100101','10101011111010110101','10001010000010000101','11101010111111110101','10001010000000000101','10111011101111110101','10000000101000000101','10111110101011110101','10000000000000000001','11111111111111111111'
     ].map(function(r){return r.split('').map(function(c){return +c;});});
+    // --- Topping icon images (SVG) ---
+    var ICONS = {
+      mushroom: { src: 'assets/mushroom.svg' },
+      cheese:   { src: 'assets/mozzarella.svg' },
+      tomato:   { src: 'assets/tomato_whole.svg' }
+    };
+    Object.keys(ICONS).forEach(function(k){
+      var img = new Image();
+      img.src = ICONS[k].src;
+      ICONS[k].img = img;
+    });
+
 
     // State
     var started=false, won=false, gameOver=false;
@@ -198,16 +210,64 @@
         }
       }
     }
-    function drawToppingIcon(icon,cx,cy){
+    function drawToppingIcon(icon, cx, cy){
+      // Prefer SVG image if available
+      var entry = (typeof ICONS!=='undefined') && ICONS[icon];
+      if (entry && entry.img && entry.img.complete) {
+        var size = 26; // tweak to 28/30 if you'd like larger icons
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        // subtle plate shadow under the icon (keeps original look)
+        ctx.beginPath(); ctx.arc(0,0,12,0,Math.PI*2);
+        ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.fill();
+        ctx.shadowColor='rgba(0,0,0,0.25)'; ctx.shadowBlur=6; ctx.shadowOffsetY=1;
+
+        ctx.drawImage(entry.img, -size/2, -size/2, size, size);
+
+        ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.shadowOffsetY=0;
+        ctx.restore();
+        return;
+      }
+
+      // Fallback to original canvas drawings if image not ready
       ctx.save(); ctx.translate(cx,cy);
       ctx.beginPath(); ctx.arc(0,0,12,0,Math.PI*2);
       ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.fill();
       ctx.shadowColor='rgba(0,0,0,0.25)'; ctx.shadowBlur=6; ctx.shadowOffsetY=1;
-      if(icon==='pepperoni'){ ctx.beginPath(); ctx.arc(0,0,9,0,Math.PI*2); ctx.fillStyle='#9d1f1f'; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#4a0f10'; ctx.stroke(); ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.fillStyle='#f7d7b8'; for(var i=0;i<6;i++){ ctx.beginPath(); ctx.arc(Math.cos(i*1.05)*3.5, Math.sin(i*1.33)*3.5, 1.3, 0, Math.PI*2); ctx.fill(); } }
-      else if(icon==='mushroom'){ ctx.beginPath(); ctx.arc(0,0,10,Math.PI,0); ctx.fillStyle='#d8cdb8'; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#8a7b66'; ctx.stroke(); ctx.fillStyle='#cdbfa6'; ctx.fillRect(-3,0,6,8); ctx.strokeStyle='#a4947d'; for(var g=-6; g<=6; g+=3){ ctx.beginPath(); ctx.moveTo(g,0); ctx.quadraticCurveTo(g/2,3, g,6); ctx.stroke(); } }
-      else if(icon==='cheese'){ ctx.beginPath(); ctx.moveTo(-8,8); ctx.lineTo(10,0); ctx.lineTo(-8,-8); ctx.closePath(); ctx.fillStyle='#f1c232'; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#b78b00'; ctx.stroke(); ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.fillStyle='#ffe08a'; for(var h=-4; h<=4; h+=4){ ctx.beginPath(); ctx.ellipse(h, (h%8===0)?-2:2, 1.4, 1, 0, 0, Math.PI*2); ctx.fill(); } }
-      else if(icon==='tomato'){ ctx.beginPath(); ctx.arc(0,0,10,0,Math.PI*2); ctx.fillStyle='#c62828'; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#7a1010'; ctx.stroke(); ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.beginPath(); ctx.arc(0,0,6,0,Math.PI*2); ctx.strokeStyle='rgba(255,255,255,0.7)'; ctx.lineWidth=1.5; ctx.stroke(); ctx.fillStyle='#ffd9a6'; for(var k=0;k<6;k++){ ctx.beginPath(); ctx.ellipse(Math.cos(k*1.047)*4, Math.sin(k*1.047)*4,1.2,0.8,0,0,Math.PI*2); ctx.fill(); } }
-      ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.shadowOffsetY=0; ctx.restore();
+
+      if(icon==='pepperoni'){
+        ctx.beginPath(); ctx.arc(0,0,9,0,Math.PI*2);
+        ctx.fillStyle='#9d1f1f'; ctx.fill();
+        ctx.lineWidth=2; ctx.strokeStyle='#4a0f10'; ctx.stroke();
+        ctx.shadowColor='transparent'; ctx.shadowBlur=0;
+        ctx.fillStyle='#f7d7b8';
+        for(var i=0;i<6;i++){ ctx.beginPath(); ctx.arc(Math.cos(i*1.05)*3.5, Math.sin(i*1.33)*3.5, 1.3, 0, Math.PI*2); ctx.fill(); }
+      } else if(icon==='mushroom'){
+        ctx.beginPath(); ctx.arc(0,0,10,Math.PI,0);
+        ctx.fillStyle='#d8cdb8'; ctx.fill();
+        ctx.lineWidth=2; ctx.strokeStyle='#8a7b66'; ctx.stroke();
+        ctx.fillStyle='#cdbfa6'; ctx.fillRect(-3,0,6,8);
+        ctx.strokeStyle='#a4947d';
+        for(var g=-6; g<=6; g+=3){ ctx.beginPath(); ctx.moveTo(g,0); ctx.quadraticCurveTo(g/2,3, g,6); ctx.stroke(); }
+      } else if(icon==='cheese'){
+        ctx.beginPath(); ctx.moveTo(-8,8); ctx.lineTo(10,0); ctx.lineTo(-8,-8); ctx.closePath();
+        ctx.fillStyle='#f1c232'; ctx.fill();
+        ctx.lineWidth=2; ctx.strokeStyle='#b78b00'; ctx.stroke();
+        ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.fillStyle='#ffe08a';
+        for(var h=-4; h<=4; h+=4){ ctx.beginPath(); ctx.ellipse(h, (h%8===0)?-2:2, 1.4, 1, 0, 0, Math.PI*2); ctx.fill(); }
+      } else if(icon==='tomato'){
+        ctx.beginPath(); ctx.arc(0,0,10,0,Math.PI*2);
+        ctx.fillStyle='#c62828'; ctx.fill();
+        ctx.lineWidth=2; ctx.strokeStyle='#7a1010'; ctx.stroke();
+        ctx.shadowColor='transparent'; ctx.shadowBlur=0;
+        ctx.beginPath(); ctx.arc(0,0,6,0,Math.PI*2); ctx.strokeStyle='rgba(255,255,255,0.7)'; ctx.lineWidth=1.5; ctx.stroke();
+        ctx.fillStyle='#ffd9a6';
+        for(var k=0;k<6;k++){ ctx.beginPath(); ctx.ellipse(Math.cos(k*1.047)*4, Math.sin(k*1.047)*4,1.2,0.8,0,0,Math.PI*2); ctx.fill(); }
+      }
+
+      ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.shadowOffsetY=0;
+      ctx.restore();
     }
     function drawToppings(){ for(var i=0;i<toppings.length;i++){ var it=toppings[i]; if(it.collected) continue; var ce=toCenter(it); drawToppingIcon(it.icon, ce.x, ce.y); } }
     function drawVan(){ var w=VAN_SIZE.w,h=VAN_SIZE.h; var x=player.x-w/2,y=player.y-h/2; ctx.save(); ctx.fillStyle='#8d2023'; ctx.fillRect(x,y,w,h); ctx.fillStyle='#ee2624'; ctx.fillRect(x,y-4,w*0.7,6); ctx.fillStyle='#1f2937'; ctx.beginPath(); ctx.arc(x+6,y+h,3,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(x+w-6,y+h,3,0,Math.PI*2); ctx.fill(); ctx.restore(); }
