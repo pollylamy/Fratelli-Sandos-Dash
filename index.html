@@ -79,7 +79,7 @@
     <main>
       <div class="stage">
         <div class="game-shell">
-          <canvas id="game" width="900" height="675"></></canvas>
+          <canvas id="game" width="900" height="675"></canvas>
           <div class="hud">
             <div id="score" class="score">Toppings: 0/0 • Lives: 3</div>
             <img id="hudLogo" style="height:28px;border-radius:6px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.08)"/>
@@ -209,7 +209,7 @@
         if(dx<hw+6 && dy<hh+6){ it.collected=true; sfx('collect'); updateScore(); }
       }
       var all=toppings.every(function(t){return t.collected;});
-      if(all && !won){ won=true; elapsed=(performance.now()-startTime)/1000; showWin(); /* sfx('win'); */ }
+      if(all && !won){ won=true; elapsed=(performance.now()-startTime)/1000; showWin(); sfx('win'); }
     }
 
     // Pathfinding
@@ -262,32 +262,71 @@
       collectIfNear(); updateEnemies(); draw();
       if(started && !won && !gameOver) requestAnimationFrame(step);
     }
-    function start(){ if(!started){ started=true; overlay.innerHTML=''; startTime=performance.now(); try{ if(window.AC && AC.state==='suspended' && AC.resume) AC.resume(); }catch(_){} requestAnimationFrame(step); /* sfx('start'); */ } }
+    function start(){ if(!started){ started=true; overlay.innerHTML=''; startTime=performance.now(); resumeAudioIfNeeded(); sfx('start'); requestAnimationFrame(step); } }
     function showStart(){ overlay.innerHTML=''; var d=document.createElement('div'); d.className='card'; d.innerHTML='<h2>Pizza Dash</h2><p>Collect all toppings, avoid the rival van. Press <b>Space</b> or tap <b>Start</b>.</p><button class="btn" id="go">Start</button>'; overlay.appendChild(d); var go=document.getElementById('go'); if(go){ go.onclick=start; try{ go.focus({preventScroll:true}); }catch(_){} } }
-    function showWin(){ overlay.innerHTML=''; var d=document.createElement('div'); d.className='card'; d.innerHTML='<h2>All toppings collected! 🎉</h2><p>Time: '+elapsed.toFixed(2)+'s</p><button class="btn" id="again">Play Again</button>'; overlay.appendChild(d); document.getElementById('again').onclick=function(){ reset(); start(); }; }
-    function showLose(){ overlay.innerHTML=''; var d=document.createElement('div'); d.className='card'; d.innerHTML='<h2>Game Over</h2><p>You were caught!</p><button class="btn" id="retry">Try Again</button>'; overlay.appendChild(d); document.getElementById('retry').onclick=function(){ reset(); start(); }; }
-    function playerHit(){ if (gameOver || won) return; lives--; /* sfx('hit'); */ if (lives <= 0) { gameOver = true; updateScore(); showLose(); } else { resetPlayer(); updateScore(); } }
+    function showWin(){ overlay.innerHTML=''; var d=document.createElement('div'); d.className='card'; d.innerHTML='<h2>All toppings collected! 🎉</h2><p>Time: '+elapsed.toFixed(2)+'s</p><button class="btn" id="again">Play Again</button>'; overlay.appendChild(d); sfx('win'); document.getElementById('again').onclick=function(){ reset(); start(); }; }
+    function showLose(){ overlay.innerHTML=''; var d=document.createElement('div'); d.className='card'; d.innerHTML='<h2>Game Over</h2><p>You were caught!</p><button class="btn" id="retry">Try Again</button>'; overlay.appendChild(d); sfx('lose'); document.getElementById('retry').onclick=function(){ reset(); start(); }; }
+    function playerHit(){ if (gameOver || won) return; lives--; sfx('hit'); if (lives <= 0) { gameOver = true; updateScore(); showLose(); } else { resetPlayer(); updateScore(); } }
 
-    // --- Minimal SFX: only 'collect' uses audio; other events silent ---
+    // --- Synth SFX (Super-Mario-ish), no external files, mobile-safe ---
     var AC=null;
-    function tone(f,d,type,gain){
+    function getAC(){
       try{
-        if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)();
-        if(AC.state==='suspended' && AC.resume) { /* resume only on gesture events */ }
-        var o=AC.createOscillator(), g=AC.createGain();
-        o.type=type||'square'; o.frequency.value=f;
-        g.gain.value=(gain==null?0.10:gain);
-        // short decay envelope
-        g.gain.setValueAtTime(g.gain.value, AC.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + Math.max(0.03, d*0.9));
-        o.connect(g).connect(AC.destination); o.start(); o.stop(AC.currentTime + d);
+        if(!AC) AC = new (window.AudioContext||window.webkitAudioContext)();
+      }catch(_){}
+      return AC;
+    }
+    function resumeAudioIfNeeded(){
+      var ac=getAC();
+      try{ if(ac && ac.state==='suspended' && ac.resume) ac.resume(); }catch(_){}
+    }
+    function beep(freq, dur, type, gain){
+      var ac=getAC(); if(!ac) return;
+      try{
+        var o=ac.createOscillator(), g=ac.createGain();
+        o.type=type||'square'; o.frequency.value=freq;
+        g.gain.value = (gain==null?0.12:gain);
+        // brief attack + decay envelope for juicy bleeps
+        var now = ac.currentTime;
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(Math.max(0.09, g.gain.value), now + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+        o.connect(g).connect(ac.destination); o.start(now); o.stop(now + dur + 0.02);
       }catch(_){}
     }
+    function arp(notes, step, type, gain){
+      var t=0;
+      for(var i=0;i<notes.length;i++){
+        (function(f,delay){ setTimeout(function(){ beep(f, 0.11, type||'square', gain); }, delay); })(notes[i], t);
+        t += step;
+      }
+    }
+    function chord(notes, dur, type, gain){
+      for(var i=0;i<notes.length;i++){ beep(notes[i], dur, type||'square', gain); }
+    }
     function sfx(kind){
-      if(kind==='collect'){
-        tone(988, .055, 'square', .12);
-        setTimeout(function(){ tone(1318, .055, 'square', .11); }, 48);
-        setTimeout(function(){ tone(1760, .065, 'square', .10); }, 96);
+      if(kind==='start'){
+        // bright quick start: up arpeggio C E G C'
+        resumeAudioIfNeeded();
+        arp([523,659,784,1046], 90, 'square', 0.12);
+      } else if(kind==='collect'){
+        // tiny coin triplet
+        beep(988, .07, 'square', .12);
+        setTimeout(function(){ beep(1318, .07, 'square', .11); }, 55);
+        setTimeout(function(){ beep(1760, .08, 'square', .10); }, 110);
+      } else if(kind==='hit'){
+        // descending “uh-oh” dip
+        beep(392, .12, 'sawtooth', .11);
+        setTimeout(function(){ beep(261.6, .14, 'sawtooth', .11); }, 110);
+      } else if(kind==='win'){
+        // short victory: arpeggio + finishing chord
+        arp([523,659,784,988,1174], 100, 'square', .12);
+        setTimeout(function(){ chord([784,988,1174], .22, 'triangle', .10); }, 520);
+      } else if(kind==='lose'){
+        // sad descending triad
+        beep(392, .18, 'triangle', .10);
+        setTimeout(function(){ beep(329.6, .20, 'triangle', .10); }, 160);
+        setTimeout(function(){ beep(246.9, .24, 'triangle', .10); }, 340);
       }
     }
 
@@ -297,7 +336,7 @@
       var buttons=wrap.querySelectorAll('.btn-ctl');
       function bind(el){
         var code=el.getAttribute('data-code'); if(!code) return;
-        var down=function(e){ e.preventDefault(); if(keys.hasOwnProperty(code)) keys[code]=true; if(!started && !won && !gameOver) start(); };
+        var down=function(e){ e.preventDefault(); if(keys.hasOwnProperty(code)) keys[code]=true; if(!started && !won && !gameOver) { resumeAudioIfNeeded(); start(); } };
         var up=function(e){ e.preventDefault(); if(keys.hasOwnProperty(code)) keys[code]=false; };
         el.addEventListener('mousedown', down);
         el.addEventListener('mouseup', up);
@@ -315,12 +354,12 @@
 
     // Events
     window.addEventListener('keydown',function(e){
-      if(e.code==='Space' || e.code==='Enter'){ start(); e.preventDefault(); }
+      if(e.code==='Space' || e.code==='Enter'){ resumeAudioIfNeeded(); start(); e.preventDefault(); }
       if(keys.hasOwnProperty(e.code)) keys[e.code]=true;
     });
     window.addEventListener('keyup',function(e){ if(keys.hasOwnProperty(e.code)) keys[e.code]=false; });
     applyLogoBtn && applyLogoBtn.addEventListener('click', function(){ var v=logoUrlInput.value && logoUrlInput.value.trim(); if(v) setLogos(v); });
-    canvas.addEventListener('click', function(){ if(!started && !won && !gameOver) start(); });
+    canvas.addEventListener('click', function(){ if(!started && !won && !gameOver) { resumeAudioIfNeeded(); start(); } });
 
     // Global error card
     window.addEventListener('error', function(e){
