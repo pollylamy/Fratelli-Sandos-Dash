@@ -173,7 +173,7 @@
 
     // Player sprite (hero van)
     var HERO_VAN = new Image();
-    HERO_VAN.src = 'assets/hero_van.svg?v=1'; // cache-bust
+    HERO_VAN.src = 'assets/hero_van.svg?v=3'; // cache-bust
 
 
     // Enemy sprite (evil oven)
@@ -288,23 +288,27 @@
       var w = VAN_SIZE.w, h = VAN_SIZE.h;
 
       if (typeof HERO_VAN!=='undefined' && HERO_VAN.complete && HERO_VAN.naturalWidth > 0){
-        // sprite draw (adjust size for the in-game look)
-        var SPRITE_W = 56, SPRITE_H = 36;
-        var x = player.x - SPRITE_W/2;
-        var y = player.y - SPRITE_H/2;
+        // Fit inside this box while preserving aspect; height is the limiter for corridors
+        var maxW = 60, maxH = 40;
+        var ratio = HERO_VAN.naturalWidth / HERO_VAN.naturalHeight;
+        var spriteW = Math.min(maxW, maxH * ratio);
+        var spriteH = Math.min(maxH, maxW / ratio);
 
-        // soft ground shadow
+        var x = player.x - spriteW/2;
+        var y = player.y - spriteH/2;
+
+        // soft ground shadow (proportional to sprite width)
         ctx.save();
         ctx.globalAlpha = 0.18;
-        ctx.beginPath(); ctx.ellipse(player.x, player.y + SPRITE_H/2 - 2, 22, 7, 0, 0, Math.PI*2);
+        var shadowW = Math.max(20, spriteW * 0.38);
+        ctx.beginPath(); ctx.ellipse(player.x, player.y + spriteH/2 - 2, shadowW, 7, 0, 0, Math.PI*2);
         ctx.fillStyle = '#000'; ctx.fill();
         ctx.globalAlpha = 1;
 
-        // draw the hero van
-        ctx.drawImage(HERO_VAN, x, y, SPRITE_W, SPRITE_H);
+        ctx.drawImage(HERO_VAN, x, y, spriteW, spriteH);
         ctx.restore();
       } else {
-        // original vector van (fallback, unchanged behavior)
+        // original vector van fallback
         var x0 = player.x - w/2, y0 = player.y - h/2; ctx.save();
         ctx.fillStyle='#8d2023'; ctx.fillRect(x0,y0,w,h);
         ctx.fillStyle='#ee2624'; ctx.fillRect(x0,y0-4,w*0.7,6);
